@@ -19,7 +19,7 @@ function AppFormField({
             <input
                 onBlur={() => setFieldTouched(name)}
                 onChange={(change) => {
-                    console.log(change.nativeEvent.data)
+                    // console.log(change.nativeEvent.data)
                     setFieldValue(name, change.nativeEvent.data, true);
                     // onChangeText(text);
                 }}

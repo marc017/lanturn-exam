@@ -20,3 +20,6 @@ You must create an entry on the tutors table to start doing actions
 With the previous steps done you should be able to run your server now using:
 `npm run dev`
 
+## Running Unit Tests
+You can execute Unit Tests using:
+`npm run dev`
