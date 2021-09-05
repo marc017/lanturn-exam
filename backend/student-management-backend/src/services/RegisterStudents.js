@@ -20,7 +20,6 @@ class RegisterStudents {
       let tutor = await Tutor.findOrCreate({
         where: {email: params.tutor}
       });
-      console.log(tutor)
       return  tutor;
     } catch (error) {
       return this.createTutor(email);
@@ -32,7 +31,7 @@ class RegisterStudents {
     
     try {
       let tutor = await this.createTutor(params.tutor) 
-      console.log('Start registration attempt.', tutor);
+      console.log('Start registration attempt.');
       // created formatted array for bulkCreation of students
       const formattedStudentEmails = commonHelper.formatEmailArray(params.students);
       return await Student.bulkCreate(formattedStudentEmails, { updateOnDuplicate: ['email'],  transaction: transaction })

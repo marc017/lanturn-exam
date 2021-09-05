@@ -22,9 +22,12 @@ describe("Api Controller", () => {
       });
 
       it("should fail without students ", async (done) => {
-        const { statusCode, body } = await request(app).post("/api/register").send({body: {tutor: 'a@tutor.com'}});
+        let payload = {
+            tutor: 'a@tutor.com'
+        }
+        const { statusCode, body } = await request(app).post("/api/register").send(payload);
         const { message, details } = body;
-
+        
         expect(message).toEqual("Validation Failed");
         expect(details).toEqual([{ students: '"students" is required' }]);
         expect(statusCode).toEqual(400);
@@ -32,8 +35,9 @@ describe("Api Controller", () => {
       });
 
       it("should fail if tutor is not an email", async (done) => {
-        const { statusCode, body } = await request(app).post("/api/register").send({body: {tutor: 'atutorcom'}});
+        const { statusCode, body } = await request(app).post("/api/register").send({tutor: 'atutorcom'});
         const { message, details } = body;
+
 
         expect(message).toEqual("Validation Failed");
         expect(details).toEqual([{ tutor: '"tutor" must be a valid email' }]);
@@ -42,11 +46,11 @@ describe("Api Controller", () => {
       });
 
       it("should fail if students are not in email format", async (done) => {
-        const { statusCode, body } = await request(app).post("/api/register").send({body: {tutor: 'a@tutor.com', students: ['astudent']}});
+        const { statusCode, body } = await request(app).post("/api/register").send({tutor: 'a@tutor.com', students: ['astudent']});
         const { message, details } = body;
-
+        console.log(details[0][0]);
         expect(message).toEqual("Validation Failed");
-        expect(details).toEqual([{ students: '"students" must be a valid email' }]);
+        expect(details).toEqual([{ '0': '"students[0]" must be a valid email' }]);
         expect(statusCode).toEqual(400);
         done();
       });
@@ -54,42 +58,42 @@ describe("Api Controller", () => {
 
     describe("Valid body", () => {
       it("should pass for new tutor and students", async (done) => {
-        let body = {
-          tutor: 'somenew@tutor.com',
+        let payload = {
+          tutor: 'a@tutor.com',
           students: [
             'newA@student.com',
             'newB@student.com'
           ]
         }
-        const { statusCode, body } = await request(app).post("/api/register").send(body);
+        const { statusCode, body } = await request(app).post("/api/register").send(payload);
 
         expect(statusCode).toEqual(204);
         done();
       });
 
       it("should pass for existing tutor and new students", async (done) => {
-        let body = {
+        let payload = {
           tutor: 'a@tutor.com',
           students: [
             'newD@student.com',
             'newE@student.com'
           ]
         }
-        const { statusCode, body } = await request(app).post("/api/register").send(body);
+        const { statusCode, body } = await request(app).post("/api/register").send(payload);
 
         expect(statusCode).toEqual(204);
         done();
       });
 
       it("should pass for new tutor and old students", async (done) => {
-        let body = {
+        let payload = {
           tutor: 'newA@tutor.com',
           students: [
             'newA@student.com',
             'newB@student.com'
           ]
         }
-        const { statusCode, body } = await request(app).post("/api/register").send(body);
+        const { statusCode, body } = await request(app).post("/api/register").send(payload);
 
         expect(statusCode).toEqual(204);
         done();
@@ -100,7 +104,7 @@ describe("Api Controller", () => {
   describe("GetCommonStudents API", () => {
     describe("Invalid query", () => {
       it("should fail without tutor ", async (done) => {
-        const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send();
+        const { statusCode, body } = await request(app).get("/api/getCommonsStudents").send();
         const { message, details } = body;
 
         expect(message).toEqual("Validation Failed");
@@ -113,11 +117,12 @@ describe("Api Controller", () => {
         const query = {
           tutor: ['atutorcom']
         }
-        const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(query);
+        // const result = await request(app).get("/api/getCommonsStudents").send(query);
+        const { statusCode, body } = await request(app).get("/api/getCommonsStudents").query(query);
         const { message, details } = body;
-
+        console.log(body);
         expect(message).toEqual("Validation Failed");
-        expect(details).toEqual([{ tutor: '"tutor" must be a valid email' }]);
+        expect(details).toEqual([{ undefined: '"tutor" must be a valid email' }]);
         expect(statusCode).toEqual(400);
         done();
       });
@@ -126,27 +131,26 @@ describe("Api Controller", () => {
     describe("Valid query", () => {
       it("should pass for single common tutor ", async (done) => {
         const query = {
-          tutor: ['a@tutor.com']
+          tutor: ['newA@tutor.com']
         }
-        const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(query);
+        const { statusCode, body } = await request(app).get("/api/getCommonsStudents").query(query);
         const { message, details } = body;
 
-        expect(message).toEqual("Validation Failed");
-        expect(details).toEqual([{ tutor: '"tutor" is required' }]);
-        expect(statusCode).toEqual(400);
+        expect(body.students instanceof Array).toBeTruthy();
+        expect(statusCode).toEqual(200);
         done();
       });
 
       it("should pass for multiple common tutor", async (done) => {
         const query = {
-          tutor: ['a@tutor.com', 'b@tutor.com']
-        }
-        const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(query);
-        const { message, details } = body;
+          tutor: ['a@tutor.com', 'newA@tutor.com']
 
-        expect(message).toEqual("Validation Failed");
-        expect(details).toEqual([{ tutor: '"tutor" is required' }]);
-        expect(statusCode).toEqual(400);
+        }
+        const { statusCode, body,  } = await request(app).get("/api/getCommonsStudents").query(query);
+        const { message, details } = body;
+        
+        expect(body.students instanceof Array).toBeTruthy();
+        expect(statusCode).toEqual(200);
         done();
       });
     });
@@ -155,24 +159,24 @@ describe("Api Controller", () => {
   describe("SuspendStudent API", () => {
     describe("Invalid body", () => {
       it("should fail for nonexistent student", async (done) => {
-        const body = {
+        const payload = {
           student: 'nonexisting@student.com'
         }
-        const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(body);
-        const { message, details } = body;
+        const { statusCode, body } = await request(app).post("/api/suspend").send(payload);
+        const { message, details, code } = body;
 
         expect(message).toEqual("Student provided does not exist");
-        expect(statusCode).toEqual(400);
+        expect(code).toEqual(400);
         done();
       });
     });
 
     describe("Valid body", () => {
       it("should pass for existing student", async (done) => {
-        const body = {
-          student: 'a@student.com'
+        const payload = {
+          student: 'newA@student.com'
         }
-        const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(body);
+        const { statusCode, body } = await request(app).post("/api/suspend").send(payload);
 
         expect(statusCode).toEqual(204);
         done();
@@ -183,10 +187,10 @@ describe("Api Controller", () => {
   describe("ReceiveNotifications API", () => {
     describe("Invalid body", () => {
       it("should fail if tutor is empty", async (done) => {
-        const body = {
+        const payload = {
           notification: 'some message'
         }
-        const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(body);
+        const { statusCode, body } = await request(app).post("/api/sendnotification").send(payload);
         const { message, details } = body;
 
         expect(message).toEqual("Validation Failed");
@@ -196,10 +200,10 @@ describe("Api Controller", () => {
       });
 
       it("should fail if notification is empty", async (done) => {
-        const body = {
+        const payload = {
           tutor: 'a@tutor.com'
         }
-        const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(body);
+        const { statusCode, body } = await request(app).post("/api/sendnotification").send(payload);
         const { message, details } = body;
 
         expect(message).toEqual("Validation Failed");
@@ -212,28 +216,29 @@ describe("Api Controller", () => {
 
   describe("Valid body", () => {
     it("should fail if tutor doesnt exist", async (done) => {
-      const body = {
+      const payload = {
         tutor: 'nonexisting@tutor.com',
         notification: 'some notification'
       }
-      const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(body);
-      const { message, details } = body;
+      const { statusCode, body } = await request(app).post("/api/sendnotification").send(payload);
+      const { message, details, code } = body;
 
       expect(message).toEqual("Tutor does not exist");
-      expect(statusCode).toEqual(400);
+      expect(code).toEqual(400);
       done();
     });
 
     it("should pass and retrieve students that belongs to the tutor", async (done) => {
-      const body = {
+      const payload = {
         tutor: 'nonexisting@tutor.com',
         notification: 'some notification'
       }
-      const { statusCode, body } = await request(app).post("/api/getcommonsstudents").send(body);
-      const { message, details } = body;
+      const { statusCode, body } = await request(app).post("/api/sendnotification").send(payload);
+      const { message, details, code } = body;
 
+      // console.log(message, body);
       expect(message).toEqual("Tutor does not exist");
-      expect(statusCode).toEqual(400);
+      expect(code).toEqual(400);
       done();
     });
 

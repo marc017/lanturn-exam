@@ -18,7 +18,7 @@ export default function AppTable({type, items, isRefresh}) {
   useEffect(() => {
     if (th.length > 0) setTableHeaders(th);
     // setTableHeaders(th);
-    console.log(items);
+    // console.log(items);
     // if (tableHeaders.length > 0 && (items && items !== undefined && items.length > 0)) {
     //     setIsReady(true);
     //     console.log('true', type, items);
@@ -60,7 +60,6 @@ export default function AppTable({type, items, isRefresh}) {
         </Table>
      : <></>
     }
-      
     </TableContainer>
   );
 }
