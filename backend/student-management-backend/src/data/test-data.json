@@ -1,0 +1,42 @@
+{
+    "name": "test-data",
+    "description": "Test Data For Testing",
+    "tutors": [
+        {
+            "email": "a@tutor.com",
+            "students": [
+                {
+                    "email": "a@student.com"
+                },
+                {
+                    "email": "b@student.com"
+                },
+                {
+                    "email": "c@student.com"
+                }
+            ]
+        },
+        {
+            "email": "b@tutor.com",
+            "students": [
+                {
+                    "email": "d@student.com"
+                },
+                {
+                    "email": "e@student.com"
+                },
+                {
+                    "email": "f@student.com"
+                }
+            ]
+        },
+        {
+            "email": "d@tutor.com",
+            "students": []
+        },
+        {
+            "email": "e@tutor.com",
+            "students": []
+        }
+    ]
+}
